@@ -6,18 +6,26 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <stdio.h>
 #include <unistd.h>
+
+void clean(SDL_Window** window, SDL_Renderer** renderer){
+    // Clean window and renderer, freeing memory and setting pointers to null
+    SDL_DestroyRenderer(*renderer);
+    SDL_DestroyWindow(*window);
+    *window = NULL;
+    *renderer = NULL;
+}
 
 int main(int argc, char *argv[]){
     
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *gWindow;
+    SDL_Renderer *gRenderer;
+    SDL_CreateWindowAndRenderer("Hello world!", 1280, 680, 0, &gWindow, &gRenderer);
+
     bool quit = false;
-
-    gWindow = SDL_CreateWindow("Hellow World!", 1800, 1620, 0);
-
-    SDL_Renderer *gRenderer = SDL_CreateRenderer(gWindow, NULL);
 
     while (!quit) {
         SDL_Event event;
@@ -30,10 +38,8 @@ int main(int argc, char *argv[]){
         SDL_RenderClear(gRenderer);
         SDL_RenderPresent(gRenderer);
     }
-    SDL_DestroyRenderer(gRenderer);
-    SDL_DestroyWindow(gWindow);
-    gWindow = NULL;
-    gRenderer = NULL;
+    clean(&gWindow, &gRenderer);
     SDL_Quit();
     return 0;
 }
+
