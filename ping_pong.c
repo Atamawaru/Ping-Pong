@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #define SDL_FLAGS SDL_INIT_VIDEO
@@ -32,6 +33,23 @@ bool game_init_sdl(Game *game){
     return true;
 }
 
+void game_run(Game *game){
+   bool quit = false;
+
+    while (!quit) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type==SDL_EVENT_QUIT) {
+                quit=true;
+            }
+        }
+        SDL_SetRenderDrawColorFloat(game->gRenderer, 0, 255, 0, 20);
+        SDL_RenderClear(game->gRenderer);
+        SDL_RenderPresent(game->gRenderer);
+    }
+ 
+}
+
 void game_free(Game *game){
     // Clean window and renderer, freeing memory and setting pointers to null
     SDL_DestroyRenderer(game->gRenderer);
@@ -44,24 +62,11 @@ void game_free(Game *game){
 
 int main(int argc, char *argv[]){
     bool exit_status=EXIT_FAILURE;
-    Game game;
+    Game game = {0};
     if (game_init_sdl(&game)){
         exit_status=EXIT_SUCCESS;
     } 
-    
-    bool quit = false;
-
-    while (!quit) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type==SDL_EVENT_QUIT) {
-                quit=true;
-            }
-        }
-        SDL_SetRenderDrawColorFloat(game.gRenderer, 0, 255, 0, 20);
-        SDL_RenderClear(game.gRenderer);
-        SDL_RenderPresent(game.gRenderer);
-    }
+    game_run(&game); 
     game_free(&game);
     return exit_status;
 }
