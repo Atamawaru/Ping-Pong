@@ -8,41 +8,47 @@
 #include <SDL3/SDL_main.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #define SDL_FLAGS SDL_INIT_VIDEO
-struct Game{
+
+#define WINDOW_TITLE "Hello world!"
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 640
+
+typedef struct game{
     SDL_Window *gWindow;
     SDL_Renderer *gRenderer;
-};
+}Game;
 
 
-bool game_init_sdl(){
+bool game_init_sdl(Game *game){
     if (!SDL_Init(SDL_FLAGS)) {
         fprintf(stderr, "Error Initializing SDL3:%s\n", SDL_GetError());
         return false;
     }
+    SDL_CreateWindowAndRenderer(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, 0, &game->gWindow, &game->gRenderer);
     return true;
 }
 
-void game_free(SDL_Window** window, SDL_Renderer** renderer){
+void game_free(Game *game){
     // Clean window and renderer, freeing memory and setting pointers to null
-    SDL_DestroyRenderer(*renderer);
-    SDL_DestroyWindow(*window);
-    *window = NULL;
-    *renderer = NULL;
+    SDL_DestroyRenderer(game->gRenderer);
+    SDL_DestroyWindow(game->gWindow);
+    game->gWindow = NULL;
+    game->gRenderer = NULL;
     SDL_Quit();
 }
 
 
 int main(int argc, char *argv[]){
+    bool exit_status=EXIT_FAILURE;
+    Game game;
+    if (game_init_sdl(&game)){
+        exit_status=EXIT_SUCCESS;
+    } 
     
-    if (!game_init_sdl()){
-        return 1;
-    }
-    struct Game game; 
-    SDL_CreateWindowAndRenderer("Hello world!", 1280, 680, 0, &game.gWindow, &game.gRenderer);
-
     bool quit = false;
 
     while (!quit) {
@@ -56,7 +62,7 @@ int main(int argc, char *argv[]){
         SDL_RenderClear(game.gRenderer);
         SDL_RenderPresent(game.gRenderer);
     }
-    game_free(&game.gWindow, &game.gRenderer);
-    return 0;
+    game_free(&game);
+    return exit_status;
 }
 
