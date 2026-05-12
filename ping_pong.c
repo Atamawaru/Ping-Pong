@@ -78,7 +78,8 @@ void game_free(Game *game){
     SDL_DestroyWindow(game->gWindow);
     game->gWindow = NULL;
     game->gRenderer = NULL;
-    free(game->gRect);
+    free(game->gRect); // free memory allocated to rectangle
+    game->gRect=&(SDL_FRect){0}; // set all rectangle parameters to 0
     SDL_Quit();
 }
 
