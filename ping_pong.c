@@ -2,7 +2,10 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_oldnames.h>
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -18,9 +21,13 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 640
 
+#define RECT_WIDTH 200
+#define RECT_HEIGHT 200
+
 typedef struct game{
     SDL_Window *gWindow;
     SDL_Renderer *gRenderer;
+    SDL_FRect *gRect;
 }Game;
 
 
@@ -29,7 +36,19 @@ bool game_init_sdl(Game *game){
         fprintf(stderr, "Error Initializing SDL3:%s\n", SDL_GetError());
         return false;
     }
-    SDL_CreateWindowAndRenderer(WINDOW_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT, 0, &game->gWindow, &game->gRenderer);
+    SDL_CreateWindowAndRenderer(
+            WINDOW_TITLE, 
+            WINDOW_WIDTH, 
+            WINDOW_HEIGHT, 
+            0, 
+            &game->gWindow, &game->gRenderer
+    );
+    game->gRect=malloc(sizeof(SDL_FRect));
+    game->gRect->h=RECT_HEIGHT;
+    game->gRect->w=RECT_WIDTH;
+    game->gRect->x=(float)WINDOW_WIDTH/2-(float)RECT_WIDTH/2;
+    game->gRect->y=(float)WINDOW_HEIGHT/2-(float)RECT_HEIGHT/2;
+    
     return true;
 }
 
@@ -45,6 +64,9 @@ void game_run(Game *game){
         }
         SDL_SetRenderDrawColorFloat(game->gRenderer, 0, 255, 0, 20);
         SDL_RenderClear(game->gRenderer);
+
+        SDL_SetRenderDrawColorFloat(game->gRenderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(game->gRenderer, game->gRect);
         SDL_RenderPresent(game->gRenderer);
     }
  
@@ -56,6 +78,7 @@ void game_free(Game *game){
     SDL_DestroyWindow(game->gWindow);
     game->gWindow = NULL;
     game->gRenderer = NULL;
+    free(game->gRect);
     SDL_Quit();
 }
 
