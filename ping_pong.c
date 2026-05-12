@@ -21,8 +21,8 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 640
 
-#define RECT_WIDTH 200
-#define RECT_HEIGHT 200
+#define RECT_WIDTH 50
+#define RECT_HEIGHT 50
 
 typedef struct game{
     SDL_Window *gWindow;
@@ -46,15 +46,15 @@ bool game_init_sdl(Game *game){
     game->gRect=malloc(sizeof(SDL_FRect));
     game->gRect->h=RECT_HEIGHT;
     game->gRect->w=RECT_WIDTH;
-    game->gRect->x=(float)WINDOW_WIDTH/2-(float)RECT_WIDTH/2;
-    game->gRect->y=(float)WINDOW_HEIGHT/2-(float)RECT_HEIGHT/2;
+    game->gRect->x=(float)(WINDOW_WIDTH-RECT_WIDTH)/2;
+    game->gRect->y=(float)(WINDOW_HEIGHT-RECT_HEIGHT)/2;
     
     return true;
 }
 
 void game_run(Game *game){
    bool quit = false;
-
+   int dir=1;
     while (!quit) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -66,6 +66,13 @@ void game_run(Game *game){
         SDL_RenderClear(game->gRenderer);
 
         SDL_SetRenderDrawColorFloat(game->gRenderer, 255, 0, 0, 255);
+        game->gRect->x+=dir;
+        if (game->gRect->x+RECT_WIDTH>=WINDOW_WIDTH) {
+            dir=-1;
+        }
+        else if (game->gRect->x<=0) {
+            dir=1;
+        }
         SDL_RenderFillRect(game->gRenderer, game->gRect);
         SDL_RenderPresent(game->gRenderer);
     }
