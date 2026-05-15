@@ -5,11 +5,15 @@
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_surface.h>
+#include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -54,8 +58,9 @@ bool game_init_sdl(Game *game){
 
 void game_run(Game *game){
    bool quit = false;
-   int dir=1;
+   int dir=10;
     while (!quit) {
+        Uint64 start = SDL_GetPerformanceCounter();
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type==SDL_EVENT_QUIT) {
@@ -68,14 +73,21 @@ void game_run(Game *game){
         SDL_SetRenderDrawColorFloat(game->gRenderer, 255, 0, 0, 255);
         game->gRect->x+=dir;
         if (game->gRect->x+RECT_WIDTH>=WINDOW_WIDTH) {
-            dir=-1;
+            dir*=-1;
         }
         else if (game->gRect->x<=0) {
-            dir=1;
+            dir*=-1;
         }
         SDL_RenderFillRect(game->gRenderer, game->gRect);
         SDL_RenderPresent(game->gRenderer);
-    }
+        
+        Uint64 end = SDL_GetPerformanceCounter();
+        float elapsed = (end - start) / (float) SDL_GetPerformanceFrequency() * 1000.0f;
+        float elapsedMS = floor(16.666f - elapsed);
+        if (elapsedMS > 0) {
+            SDL_Delay(elapsedMS);
+        }
+    } 
  
 }
 
