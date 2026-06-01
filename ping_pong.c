@@ -28,7 +28,8 @@
 #define RECT_WIDTH 50
 #define RECT_HEIGHT 50
 
-#define BALL_SPEED_X 10
+#define BALL_SPEED_X 8
+#define BALL_SPEED_Y 5
 typedef struct game{
     SDL_Window *gWindow;
     SDL_Renderer *gRenderer;
@@ -57,17 +58,24 @@ bool game_init_sdl(Game *game){
     return true;
 }
 
-void move_ball(Game **game, int *dir){
+void move_ball(Game **game, int *dirX, int *dirY){
     SDL_SetRenderDrawColorFloat((*game)->gRenderer, 0, 255, 0, 20);
     SDL_RenderClear((*game)->gRenderer);
 
     SDL_SetRenderDrawColorFloat((*game)->gRenderer, 255, 0, 0, 255);
-    (*game)->gRect->x+=*dir;
+    (*game)->gRect->x+=*dirX;
+    (*game)->gRect->y+=*dirY;
     if ((*game)->gRect->x+RECT_WIDTH>=WINDOW_WIDTH) {
-        *dir*=-1;
+        *dirX*=-1;
     }
-    else if ((*game)->gRect->x<=0) {
-        *dir*=-1;
+    else if ((*game)->gRect->y+RECT_HEIGHT>=WINDOW_HEIGHT) {
+        *dirY*=-1;
+    }
+    else if ((*game)->gRect->x<=0){
+        *dirX*=-1;
+    }
+    else if ((*game)->gRect->y<=0) {
+        *dirY*=-1;
     }
     
     return; 
@@ -75,7 +83,8 @@ void move_ball(Game **game, int *dir){
 
 void game_run(Game *game){
    bool quit = false;
-   int dir = BALL_SPEED_X;
+   int dirX = BALL_SPEED_X;
+   int dirY = BALL_SPEED_Y;
     while (!quit) {
         Uint64 start = SDL_GetPerformanceCounter();
         SDL_Event event;
@@ -84,7 +93,7 @@ void game_run(Game *game){
                 quit=true;
             }
         }
-        move_ball(&game, &dir);
+        move_ball(&game, &dirX, &dirY);
         SDL_RenderFillRect(game->gRenderer, game->gRect);
         SDL_RenderPresent(game->gRenderer);
              
